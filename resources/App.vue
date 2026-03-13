@@ -1,9 +1,9 @@
 <script setup>
-import Table from './components/Table.vue'
+import VehiclePage from './pages/VehiclePage.vue'
 </script>
 
 <template>
   <VApp>
-      <Table />
+      <VehiclePage />
   </VApp>
 </template>
