@@ -38,15 +38,14 @@ class VehiclesBuilder
      */
     private function entityToDTO(Vehicle $vehicle): VehicleDTO
     {
-        $vehicleDTO = new VehicleDTO();
-        $vehicleDTO->id = $vehicle->getId();
-        $vehicleDTO->registrationNumber = $vehicle->getRegistrationNumber();
-        $vehicleDTO->brand = $vehicle->getBrand();
-        $vehicleDTO->model = $vehicle->getModel();
-        $vehicleDTO->type = $vehicle->getType();
-        $vehicleDTO->createdAt = $vehicle->getCreatedAt();
-        $vehicleDTO->updatedAt = $vehicle->getUpdatedAt();
-
-        return $vehicleDTO;
+        return new VehicleDTO(
+            id: $vehicle->getId(),
+            registrationNumber: $vehicle->getRegistrationNumber(),
+            brand: $vehicle->getBrand(),
+            model: $vehicle->getModel(),
+            type: $vehicle->getType(),
+            createdAt: $vehicle->getCreatedAt(),
+            updatedAt: $vehicle->getUpdatedAt(),
+        );
     }
 }

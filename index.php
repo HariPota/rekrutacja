@@ -52,7 +52,7 @@ try {
     $action = $parameters['method'];
     $controller->$action(
         $parameters['id'] ?? null,
-        $request->getMethod() === 'POST' ? $request : null,
+        $request,
     );
 } catch (ResourceNotFoundException $e) {
     (new Response(content: $e->getMessage(), status: 404))->send();

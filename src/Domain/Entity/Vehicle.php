@@ -4,13 +4,25 @@ namespace Domain\Entity;
 
 class Vehicle
 {
-    private int $id;
-    private string $registrationNumber;
-    private string $brand;
-    private string $model;
-    private string $type;
-    private ?int $createdAt;
-    private ?int $updatedAt;
+    /**
+     * @param int $id
+     * @param string $registrationNumber
+     * @param string $brand
+     * @param string $model
+     * @param string $type
+     * @param int|null $createdAt
+     * @param int|null $updatedAt
+     */
+    public function __construct(
+        private readonly int $id = 0,
+        private readonly string $registrationNumber = '',
+        private readonly string $brand = '',
+        private readonly string $model = '',
+        private readonly string $type = '',
+        private readonly ?int $createdAt = null,
+        private readonly ?int $updatedAt = null,
+    ) {
+    }
 
     /**
      * @return int
@@ -18,16 +30,6 @@ class Vehicle
     public function getId(): int
     {
         return $this->id;
-    }
-
-    /**
-     * @param int $id
-     * @return self
-     */
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
     }
 
     /**
@@ -39,31 +41,11 @@ class Vehicle
     }
 
     /**
-     * @param string $registrationNumber
-     * @return self
-     */
-    public function setRegistrationNumber(string $registrationNumber): self
-    {
-        $this->registrationNumber = $registrationNumber;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getBrand(): string
     {
         return $this->brand;
-    }
-
-    /**
-     * @param string $brand
-     * @return self
-     */
-    public function setBrand(string $brand): self
-    {
-        $this->brand = $brand;
-        return $this;
     }
 
     /**
@@ -75,31 +57,11 @@ class Vehicle
     }
 
     /**
-     * @param string $model
-     * @return self
-     */
-    public function setModel(string $model): self
-    {
-        $this->model = $model;
-        return $this;
-    }
-
-    /**
      * @return string
      */
     public function getType(): string
     {
         return $this->type;
-    }
-
-    /**
-     * @param string $type
-     * @return self
-     */
-    public function setType(string $type): self
-    {
-        $this->type = $type;
-        return $this;
     }
 
     /**
@@ -111,30 +73,10 @@ class Vehicle
     }
 
     /**
-     * @param int|null $createdAt
-     * @return self
-     */
-    public function setCreatedAt(?int $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    /**
      * @return int|null
      */
     public function getUpdatedAt(): ?int
     {
         return $this->updatedAt;
-    }
-
-    /**
-     * @param int|null $updatedAt
-     * @return self
-     */
-    public function setUpdatedAt(?int $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
     }
 }
