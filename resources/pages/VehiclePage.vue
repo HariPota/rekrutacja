@@ -60,9 +60,9 @@ import { createVehicle, updateVehicle, removeVehicle } from '../api/vehicles'
 import Table from '../components/Table.vue'
 import VehicleFormDialog from '../components/vehicles/VehicleFormDialog.vue'
 
+
 const { proxy } = getCurrentInstance()
 const datagrid = ref(null)
-
 const headers = [
     { text: 'No.', value: 'no', sortable: false, width: '60px' },
     { text: 'Registration Number', value: 'registrationNumber', width: '180px' },
@@ -73,29 +73,29 @@ const headers = [
     { text: 'Modification Date', value: 'updatedAt', width: '180px' },
     { text: 'Actions', value: 'actions', sortable: false, align: 'center', width: '100px' },
 ]
+const formDialog = reactive({ visible: false, vehicle: {} })
 
-const formDialog = reactive({ visible: false, vehicle: null })
 
-function formatDate(timestamp) {
+const formatDate = (timestamp) => {
     if (!timestamp) return ''
     return format(fromUnixTime(timestamp), 'dd/MM/yyyy HH:mm')
 }
 
-function refreshDatagrid() {
+const refreshDatagrid = () => {
     datagrid.value.refresh()
 }
 
-function handleAddClick() {
-    formDialog.vehicle = null
+const handleAddClick = () => {
+    formDialog.vehicle = {}
     formDialog.visible = true
 }
 
-function handleEditClick(item) {
+const handleEditClick = (item) => {
     formDialog.vehicle = item
     formDialog.visible = true
 }
 
-async function handleDeleteClick(item) {
+const handleDeleteClick = async (item) => {
     const confirmed = await proxy.$confirm(
         `Are you sure you want to delete vehicle <strong>${item.registrationNumber}</strong>?`,
         { title: 'Confirm' }
@@ -110,7 +110,7 @@ async function handleDeleteClick(item) {
     }
 }
 
-async function handleFormSubmit(form) {
+const handleFormSubmit = async (form) => {
     try {
         if (formDialog.vehicle) {
             await updateVehicle(formDialog.vehicle.id, form)
@@ -118,6 +118,7 @@ async function handleFormSubmit(form) {
             await createVehicle(form)
         }
         formDialog.visible = false
+        formDialog.vehicle = {}
         refreshDatagrid()
     } catch (error) {
         console.error('Failed to save vehicle:', error)

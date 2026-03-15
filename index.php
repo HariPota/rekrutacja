@@ -3,11 +3,16 @@ require_once './vendor/autoload.php';
 
 Dotenv\Dotenv::createImmutable(__DIR__)->load();
 
+use App\Container;
 use App\Controller\Vehicle\CreateController;
 use App\Controller\Vehicle\DeleteController;
 use App\Controller\Vehicle\ListController;
 use App\Controller\Vehicle\PageController;
 use App\Controller\Vehicle\UpdateController;
+use App\ParamConverter\JsonParamConverter;
+use App\ParamConverter\ParamConverterInterface;
+use Domain\Repository\VehicleRepositoryInterface;
+use Persistence\Repository\VehicleRepository;
 use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Routing\{
     Exception\MethodNotAllowedException,
@@ -19,6 +24,10 @@ use Symfony\Component\Routing\{
 };
 
 try {
+    $container = new Container();
+    $container->bind(VehicleRepositoryInterface::class, VehicleRepository::class);
+    $container->bind(ParamConverterInterface::class, JsonParamConverter::class);
+
     $routes = new RouteCollection();
     $routes->add('index', new Route(
         path: '/vehicles',
@@ -56,7 +65,7 @@ try {
     $matcher = new UrlMatcher($routes, $context);
     $parameters = $matcher->match($context->getPathInfo());
 
-    $controller = new $parameters['controller'];
+    $controller = $container->get($parameters['controller']);
     $action = $parameters['method'];
 
     $args = [];

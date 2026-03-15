@@ -4,19 +4,25 @@ namespace App\Controller\Vehicle;
 
 use App\Controller\BaseController;
 use Domain\Service\VehiclesReader;
-use Persistence\Repository\VehicleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class ListController extends BaseController
 {
     /**
+     * @param VehiclesReader $vehiclesReader
+     */
+    public function __construct(private readonly VehiclesReader $vehiclesReader)
+    {
+        parent::__construct();
+    }
+
+    /**
      * @param Request $request
      * @return JsonResponse
      */
     public function list(Request $request): JsonResponse
     {
-
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
         $offset = ($page - 1) * $limit;
@@ -34,7 +40,7 @@ class ListController extends BaseController
         }
 
         try {
-            $results = (new VehiclesReader(new VehicleRepository()))->getList($limit, $offset, $sort, $sortDirection);
+            $results = $this->vehiclesReader->getList($limit, $offset, $sort, $sortDirection);
 
             return $this->toJsonResponse($results);
         } catch (\Throwable $e) {

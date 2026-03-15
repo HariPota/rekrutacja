@@ -43,12 +43,6 @@
 import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
-function buildSortString(sort) {
-    if (!sort || typeof sort !== 'object') return null
-    const { field, direction } = sort
-    if (!field) return null
-    return `${field}|${direction || 'ascending'}`
-}
 
 const props = defineProps({
     tableHeaders: { type: Array, required: true },
@@ -61,7 +55,9 @@ const props = defineProps({
     query: { type: Object, default: null },
 })
 
+
 const emit = defineEmits(['fetching', 'fetched', 'fetchError'])
+
 
 const initialized = ref(false)
 const fetching = ref(false)
@@ -72,7 +68,15 @@ const currentPage = ref(1)
 const currentLimit = ref(props.itemsPerPage)
 const internalOptions = ref({})
 
-async function fetchData(overrideParams) {
+
+const buildSortString = (sort) => {
+    if (!sort || typeof sort !== 'object') return null
+    const { field, direction } = sort
+    if (!field) return null
+    return `${field}|${direction || 'ascending'}`
+}
+
+const fetchData = async (overrideParams) => {
     if (fetching.value) return
 
     fetching.value = true
@@ -113,25 +117,26 @@ async function fetchData(overrideParams) {
     }
 }
 
-async function refresh() {
+const refresh = async () => {
     await fetchData()
 }
 
-async function handlePageUpdate(page) {
+const handlePageUpdate = async (page) => {
     currentPage.value = page
     await fetchData()
 }
 
-async function handleItemsPerPageChange(limit) {
+const handleItemsPerPageChange = async (limit) => {
     currentLimit.value = limit
     currentPage.value = 1
     await fetchData()
 }
 
-async function handleSortChange() {
+const handleSortChange = async () => {
     currentPage.value = 1
     await fetchData()
 }
+
 
 watch(() => props.query, () => {
     if (props.autoRefresh) {
@@ -139,6 +144,7 @@ watch(() => props.query, () => {
         refresh()
     }
 }, { deep: true })
+
 
 onMounted(async () => {
     if (!props.url) return

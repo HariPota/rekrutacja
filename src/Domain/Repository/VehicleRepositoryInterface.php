@@ -37,4 +37,19 @@ interface VehicleRepositoryInterface
      * @return void
      */
     public function persist(Vehicle $vehicle): void;
+
+    /**
+     * @return void
+     */
+    public function beginTransaction(): void;
+
+    /**
+     * @return void
+     */
+    public function commit(): void;
+
+    /**
+     * @return void
+     */
+    public function rollback(): void;
 }

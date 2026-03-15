@@ -117,6 +117,30 @@ class VehicleRepository implements VehicleRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function beginTransaction(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
+    }
+
+    /**
      * @return QueryBuilderInterface
      */
     private function createQueryBuilder(): QueryBuilderInterface

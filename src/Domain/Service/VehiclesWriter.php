@@ -22,6 +22,8 @@ class VehiclesWriter
     public function createVehicle(VehicleDTO $vehicleDTO): void
     {
         try {
+            $this->vehicleRepository->beginTransaction();
+
             $now = time();
 
             $vehicle = new Vehicle(
@@ -34,7 +36,9 @@ class VehiclesWriter
             );
 
             $this->vehicleRepository->persist($vehicle);
+            $this->vehicleRepository->commit();
         } catch (\Throwable $e) {
+            $this->vehicleRepository->rollback();
             throw new \RuntimeException('Failed to create vehicle: ' . $e->getMessage(), 0, $e);
         }
     }
@@ -48,9 +52,12 @@ class VehiclesWriter
     public function updateVehicle(int $id, VehicleDTO $vehicleDTO): void
     {
         try {
+            $this->vehicleRepository->beginTransaction();
+
             $vehicle = $this->vehicleRepository->getById($id);
 
             if (!$vehicle) {
+                $this->vehicleRepository->rollback();
                 throw new \RuntimeException('Vehicle not found');
             }
 
@@ -63,9 +70,11 @@ class VehiclesWriter
             );
 
             $this->vehicleRepository->persist($vehicle);
+            $this->vehicleRepository->commit();
         } catch (\RuntimeException $e) {
             throw $e;
         } catch (\Throwable $e) {
+            $this->vehicleRepository->rollback();
             throw new \RuntimeException('Failed to update vehicle: ' . $e->getMessage(), 0, $e);
         }
     }
@@ -78,8 +87,11 @@ class VehiclesWriter
     public function deleteById(int $id): void
     {
         try {
+            $this->vehicleRepository->beginTransaction();
             $this->vehicleRepository->deleteById($id);
+            $this->vehicleRepository->commit();
         } catch (\Throwable $e) {
+            $this->vehicleRepository->rollback();
             throw new \RuntimeException('Failed to delete vehicle: ' . $e->getMessage(), 0, $e);
         }
     }

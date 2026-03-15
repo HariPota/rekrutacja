@@ -3,16 +3,26 @@
 namespace App\Controller\Vehicle;
 
 use App\Controller\BaseController;
-use App\ParamConverter\JsonParamConverter;
+use App\ParamConverter\ParamConverterInterface;
 use App\Request\SaveVehicleRequest;
 use Domain\Service\VehicleDTO;
 use Domain\Service\VehiclesWriter;
-use Persistence\Repository\VehicleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class UpdateController extends BaseController
 {
+    /**
+     * @param VehiclesWriter $vehiclesWriter
+     * @param ParamConverterInterface $paramConverter
+     */
+    public function __construct(
+        private readonly VehiclesWriter $vehiclesWriter,
+        private readonly ParamConverterInterface $paramConverter,
+    ) {
+        parent::__construct();
+    }
+
     /**
      * @param int $id
      * @param Request $request
@@ -22,7 +32,7 @@ class UpdateController extends BaseController
     {
         try {
             /** @var SaveVehicleRequest $saveRequest */
-            $saveRequest = (new JsonParamConverter())->convert($request, SaveVehicleRequest::class);
+            $saveRequest = $this->paramConverter->convert($request, SaveVehicleRequest::class);
 
             $errors = $this->validate($saveRequest);
             if ($errors->count()) {
@@ -39,7 +49,7 @@ class UpdateController extends BaseController
                 updatedAt: null,
             );
 
-            (new VehiclesWriter(new VehicleRepository()))->updateVehicle($id, $vehicleDTO);
+            $this->vehiclesWriter->updateVehicle($id, $vehicleDTO);
 
             return $this->toJsonResponse(['success' => true]);
         } catch (\InvalidArgumentException $e) {

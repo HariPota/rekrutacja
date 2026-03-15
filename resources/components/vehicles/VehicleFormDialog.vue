@@ -1,7 +1,7 @@
 <template>
     <v-dialog :value="visible" max-width="500px" @input="$emit('close')">
         <v-card>
-            <v-card-title>{{ isEditing ? 'Edit Vehicle' : 'Add Vehicle' }}</v-card-title>
+            <v-card-title>{{ dialogTitle }}</v-card-title>
             <v-card-text>
                 <v-text-field
                     v-model="form.registrationNumber"
@@ -31,38 +31,28 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { VEHICLE_TYPES, CREATE_EDIT_VEHICLE_FORM_DEFAULTS } from './constants'
 
-const VEHICLE_TYPES = ['Passenger', 'Bus', 'Truck']
 
 const props = defineProps({
     visible: { type: Boolean, default: false },
-    vehicle: { type: Object, default: null },
+    vehicle: { type: Object, default: () => ({}) },
 })
+
 
 defineEmits(['close', 'submit'])
 
-const vehicleTypes = VEHICLE_TYPES
-const isEditing = ref(false)
-const form = ref(createEmptyForm())
 
-function createEmptyForm() {
-    return { registrationNumber: '', brand: '', model: '', type: '' }
-}
+const vehicleTypes = VEHICLE_TYPES
+const form = ref(CREATE_EDIT_VEHICLE_FORM_DEFAULTS())
+
+const isEditing = computed(() => !!props.vehicle.id)
+const dialogTitle = computed(() => isEditing.value ? 'Edit Vehicle' : 'Add Vehicle')
+
 
 watch(() => props.visible, (val) => {
     if (!val) return
-    if (props.vehicle) {
-        isEditing.value = true
-        form.value = {
-            registrationNumber: props.vehicle.registrationNumber,
-            brand: props.vehicle.brand,
-            model: props.vehicle.model,
-            type: props.vehicle.type,
-        }
-    } else {
-        isEditing.value = false
-        form.value = createEmptyForm()
-    }
+    form.value = Object.assign(CREATE_EDIT_VEHICLE_FORM_DEFAULTS(), props.vehicle)
 })
 </script>
