@@ -3,7 +3,7 @@
 namespace App\Controller\Vehicle;
 
 use App\Controller\BaseController;
-use Domain\Service\VehiclesBuilder;
+use Domain\Service\VehiclesReader;
 use Persistence\Repository\VehicleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,8 +35,12 @@ class ListController extends BaseController
             }
         }
 
-        $results = (new VehiclesBuilder(new VehicleRepository()))->getList($limit, $offset, $sort, $sortDirection);
+        try {
+            $results = (new VehiclesReader(new VehicleRepository()))->getList($limit, $offset, $sort, $sortDirection);
 
-        return $this->toJsonResponse($results);
+            return $this->toJsonResponse($results);
+        } catch (\Throwable $e) {
+            return $this->toJsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

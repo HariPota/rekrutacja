@@ -70,7 +70,9 @@ class VehicleRepository implements VehicleRepositoryInterface
      */
     public function deleteById(int $id): void
     {
-        // TODO: implement
+        $stmt = $this->pdo->prepare('DELETE FROM vehicles WHERE id = :id');
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     /**
