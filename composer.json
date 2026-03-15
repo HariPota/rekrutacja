@@ -5,7 +5,8 @@
         "symfony/http-foundation": "^v6.3.4",
         "ext-pdo": "*",
         "jms/serializer": "^3.32",
-        "symfony/validator": "^6.4"
+        "symfony/validator": "^6.4",
+        "vlucas/phpdotenv": "^5.6"
     },
     "config": {
         "platform": {

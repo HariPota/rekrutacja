@@ -86,10 +86,19 @@ class QueryBuilder implements QueryBuilderInterface
      */
     public function getCount(): int
     {
-        $sql = 'SELECT COUNT(*) FROM ' . $this->table;
+        $sql = 'SELECT COUNT(*) FROM ' . $this->quoteIdentifier($this->table);
         $stmt = $this->pdo->query($sql);
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * @param string $identifier
+     * @return string
+     */
+    private function quoteIdentifier(string $identifier): string
+    {
+        return '"' . str_replace('"', '""', $identifier) . '"';
     }
 
     /**
@@ -97,11 +106,14 @@ class QueryBuilder implements QueryBuilderInterface
      */
     private function toSql(): string
     {
-        $columns = implode(', ', $this->columns);
-        $sql = "SELECT {$columns} FROM {$this->table}";
+        $columns = implode(', ', array_map(
+            fn(string $col) => $col === '*' ? $col : $this->quoteIdentifier($col),
+            $this->columns
+        ));
+        $sql = "SELECT {$columns} FROM {$this->quoteIdentifier($this->table)}";
 
         if ($this->orderByColumn !== null) {
-            $sql .= " ORDER BY {$this->orderByColumn} {$this->orderByDirection}";
+            $sql .= " ORDER BY {$this->quoteIdentifier($this->orderByColumn)} {$this->orderByDirection}";
         }
 
         if ($this->limit !== null) {

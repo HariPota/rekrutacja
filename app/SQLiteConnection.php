@@ -6,14 +6,17 @@ use PDO;
 
 class SQLiteConnection
 {
-    private ?PDO $pdo = null;
+    private static ?PDO $pdo = null;
 
-    public function connect(): PDO
+    /**
+     * @return PDO
+     */
+    public static function connect(): PDO
     {
-        if ($this->pdo === null) {
-            $this->pdo = new PDO('sqlite:db/assqlite.db');
+        if (self::$pdo === null) {
+            self::$pdo = new PDO($_ENV['DATABASE_DSN']);
         }
 
-        return $this->pdo;
+        return self::$pdo;
     }
 }

@@ -29,7 +29,7 @@ class VehicleRepository implements VehicleRepositoryInterface
 
     public function __construct()
     {
-        $this->pdo = (new SQLiteConnection())->connect();
+        $this->pdo = SQLiteConnection::connect();
         $this->serializer = SerializerBuilder::create()->build();
     }
 

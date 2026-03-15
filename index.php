@@ -1,6 +1,8 @@
 <?php
 require_once './vendor/autoload.php';
 
+Dotenv\Dotenv::createImmutable(__DIR__)->load();
+
 use App\Controller\Vehicle\CreateController;
 use App\Controller\Vehicle\DeleteController;
 use App\Controller\Vehicle\ListController;
@@ -70,7 +72,8 @@ try {
         }
     }
 
-    $controller->$action(...$args);
+    $response = $controller->$action(...$args);
+    $response->send();
 } catch (ResourceNotFoundException $e) {
     (new Response(content: $e->getMessage(), status: 404))->send();
 } catch (MethodNotAllowedException $e) {

@@ -38,7 +38,7 @@ class ListController extends BaseController
 
             return $this->toJsonResponse($results);
         } catch (\Throwable $e) {
-            return $this->toJsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+            return $this->toJsonResponse(['success' => false, 'message' => 'An error occurred while fetching vehicles'], 500);
         }
     }
 }

@@ -21,7 +21,7 @@ class DeleteController extends BaseController
 
             return $this->toJsonResponse(['success' => true]);
         } catch (\Throwable $e) {
-            return $this->toJsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+            return $this->toJsonResponse(['success' => false, 'message' => 'An error occurred while deleting the vehicle'], 500);
         }
     }
 }

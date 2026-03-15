@@ -10,6 +10,6 @@ class PageController
     {
         ob_start();
         include __DIR__ . '/../../views/index.php';
-        return (new Response(ob_get_clean()))->send();
+        return new Response(ob_get_clean());
     }
 }

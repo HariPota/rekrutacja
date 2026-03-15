@@ -1,5 +1,8 @@
 <template>
     <section class="v-datagrid">
+        <v-alert v-if="fetchError" type="error" dismissible @input="fetchError = null" class="mb-2">
+            {{ fetchError }}
+        </v-alert>
         <v-data-table
             :class="['v-datagrid__table', { 'v-datagrid__table--hover': hoverRows }]"
             :loading="fetching"
@@ -36,7 +39,8 @@
     </section>
 </template>
 
-<script>
+<script setup>
+import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 
 function buildSortString(sort) {
@@ -46,134 +50,106 @@ function buildSortString(sort) {
     return `${field}|${direction || 'ascending'}`
 }
 
-export default {
-    name: 'Table',
-    props: {
-        tableHeaders: {
-            type: Array,
-            required: true,
-        },
-        url: {
-            type: String,
-            default: '',
-        },
-        itemsPerPage: {
-            type: Number,
-            default: 10,
-        },
-        paginationPageSizes: {
-            type: Array,
-            default: () => [10, 20, 50],
-        },
-        hoverRows: {
-            type: Boolean,
-            default: true,
-        },
-        height: {
-            type: [String, Number],
-            default: '70vh',
-        },
-        autoRefresh: {
-            type: Boolean,
-            default: true,
-        },
-        query: {
-            type: Object,
-            default: null,
-        },
-    },
-    data() {
-        return {
-            initialized: false,
-            fetching: false,
-            fetchError: null,
-            tableData: [],
-            total: 0,
-            currentPage: 1,
-            currentLimit: this.itemsPerPage,
-            internalOptions: {},
+const props = defineProps({
+    tableHeaders: { type: Array, required: true },
+    url: { type: String, default: '' },
+    itemsPerPage: { type: Number, default: 10 },
+    paginationPageSizes: { type: Array, default: () => [10, 20, 50] },
+    hoverRows: { type: Boolean, default: true },
+    height: { type: [String, Number], default: '70vh' },
+    autoRefresh: { type: Boolean, default: true },
+    query: { type: Object, default: null },
+})
+
+const emit = defineEmits(['fetching', 'fetched', 'fetchError'])
+
+const initialized = ref(false)
+const fetching = ref(false)
+const fetchError = ref(null)
+const tableData = ref([])
+const total = ref(0)
+const currentPage = ref(1)
+const currentLimit = ref(props.itemsPerPage)
+const internalOptions = ref({})
+
+async function fetchData(overrideParams) {
+    if (fetching.value) return
+
+    fetching.value = true
+    emit('fetching')
+
+    try {
+        let params = {
+            page: currentPage.value,
+            limit: currentLimit.value,
         }
-    },
-    mounted() {
-        this.init()
-    },
-    methods: {
-        async init() {
-            if (!this.url || this.initialized) return
 
-            try {
-                await this.fetchData()
-                this.initialized = true
-            } catch (error) {
-                console.error(error)
-            }
-        },
-        async refresh() {
-            await this.fetchData()
-        },
-        async fetchData(overrideParams) {
-            if (this.fetching) return
+        const { sortBy = [], sortDesc = [] } = internalOptions.value
+        if (sortBy.length > 0) {
+            params.sort = buildSortString({
+                field: sortBy[0],
+                direction: sortDesc[0] ? 'descending' : 'ascending',
+            })
+        }
 
-            this.fetching = true
-            this.$emit('fetching')
+        if (props.query) {
+            params = Object.assign({}, props.query, params)
+        }
 
-            try {
-                let params = {
-                    page: this.currentPage,
-                    limit: this.currentLimit,
-                }
+        if (overrideParams) {
+            params = Object.assign({}, params, overrideParams)
+        }
 
-                const { sortBy = [], sortDesc = [] } = this.internalOptions
-                if (sortBy.length > 0) {
-                    params.sort = buildSortString({
-                        field: sortBy[0],
-                        direction: sortDesc[0] ? 'descending' : 'ascending',
-                    })
-                }
-
-                if (this.query) {
-                    params = Object.assign({}, this.query, params)
-                }
-
-                if (overrideParams) {
-                    params = Object.assign({}, params, overrideParams)
-                }
-
-                const { data } = await axios.get(this.url, { params })
-                this.tableData = data.rows || []
-                this.total = data.total || 0
-                this.$emit('fetched', data)
-            } catch (error) {
-                this.fetchError = 'An error occurred. Please try again.'
-                this.$emit('fetchError', error)
-            } finally {
-                this.fetching = false
-            }
-        },
-        async handlePageUpdate(page) {
-            this.currentPage = page
-            await this.fetchData()
-        },
-        async handleItemsPerPageChange(limit) {
-            this.currentLimit = limit
-            this.currentPage = 1
-            await this.fetchData()
-        },
-        async handleSortChange() {
-            this.currentPage = 1
-            await this.fetchData()
-        },
-    },
-    watch: {
-        query: {
-            deep: true,
-            handler() {
-                if (this.autoRefresh) {
-                    this.currentPage = 1
-                    this.refresh()
-                }
-            },
-        },
-    },
+        const { data } = await axios.get(props.url, { params })
+        fetchError.value = null
+        tableData.value = data.rows || []
+        total.value = data.total || 0
+        emit('fetched', data)
+    } catch (error) {
+        fetchError.value = 'An error occurred. Please try again.'
+        emit('fetchError', error)
+    } finally {
+        fetching.value = false
+    }
 }
+
+async function refresh() {
+    await fetchData()
+}
+
+async function handlePageUpdate(page) {
+    currentPage.value = page
+    await fetchData()
+}
+
+async function handleItemsPerPageChange(limit) {
+    currentLimit.value = limit
+    currentPage.value = 1
+    await fetchData()
+}
+
+async function handleSortChange() {
+    currentPage.value = 1
+    await fetchData()
+}
+
+watch(() => props.query, () => {
+    if (props.autoRefresh) {
+        currentPage.value = 1
+        refresh()
+    }
+}, { deep: true })
+
+onMounted(async () => {
+    if (!props.url) return
+
+    try {
+        await fetchData()
+        initialized.value = true
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+defineExpose({ refresh })
 </script>
