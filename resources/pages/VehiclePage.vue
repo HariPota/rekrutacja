@@ -10,9 +10,9 @@
                 <v-toolbar flat>
                     <v-toolbar-title>Vehicles</v-toolbar-title>
                     <v-spacer />
-                    <v-btn color="primary" small @click="handleAddClick">
+                    <v-btn color="primary" small depressed class="text-none" @click="handleAddClick">
                         <v-icon left small>mdi-plus</v-icon>
-                        Add
+                        Add vehicle
                     </v-btn>
                 </v-toolbar>
             </template>
@@ -34,10 +34,10 @@
             </template>
 
             <template v-slot:item.actions="{ item }">
-                <v-icon small class="mr-2" @click="handleEditClick(item)">
+                <v-icon small class="mr-2" color="blue" @click="handleEditClick(item)">
                     mdi-pencil
                 </v-icon>
-                <v-icon small @click="handleDeleteClick(item)">
+                <v-icon small color="red" @click="handleDeleteClick(item)">
                     mdi-delete
                 </v-icon>
             </template>
@@ -78,7 +78,7 @@ const formDialog = reactive({ visible: false, vehicle: {} })
 
 const formatDate = (timestamp) => {
     if (!timestamp) return ''
-    return format(fromUnixTime(timestamp), 'dd/MM/yyyy HH:mm')
+    return format(fromUnixTime(timestamp), 'yyyy-MM-dd HH:mm')
 }
 
 const refreshDatagrid = () => {
@@ -112,7 +112,7 @@ const handleDeleteClick = async (item) => {
 
 const handleFormSubmit = async (form) => {
     try {
-        if (formDialog.vehicle) {
+        if (formDialog.vehicle.id) {
             await updateVehicle(formDialog.vehicle.id, form)
         } else {
             await createVehicle(form)

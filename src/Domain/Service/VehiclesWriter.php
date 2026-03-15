@@ -44,17 +44,16 @@ class VehiclesWriter
     }
 
     /**
-     * @param int $id
      * @param VehicleDTO $vehicleDTO
      * @return void
      * @throws \RuntimeException
      */
-    public function updateVehicle(int $id, VehicleDTO $vehicleDTO): void
+    public function updateVehicle(VehicleDTO $vehicleDTO): void
     {
         try {
             $this->vehicleRepository->beginTransaction();
 
-            $vehicle = $this->vehicleRepository->getById($id);
+            $vehicle = $this->vehicleRepository->getById($vehicleDTO->id);
 
             if (!$vehicle) {
                 $this->vehicleRepository->rollback();

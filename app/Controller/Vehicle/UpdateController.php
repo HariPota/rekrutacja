@@ -49,7 +49,7 @@ class UpdateController extends BaseController
                 updatedAt: null,
             );
 
-            $this->vehiclesWriter->updateVehicle($id, $vehicleDTO);
+            $this->vehiclesWriter->updateVehicle($vehicleDTO);
 
             return $this->toJsonResponse(['success' => true]);
         } catch (\InvalidArgumentException $e) {

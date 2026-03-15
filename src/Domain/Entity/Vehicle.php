@@ -4,7 +4,7 @@ namespace Domain\Entity;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class Vehicle
+class Vehicle implements \JsonSerializable
 {
     /**
      * @Serializer\Type("int")
@@ -148,5 +148,21 @@ class Vehicle
         $this->model = $model;
         $this->type = $type;
         $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'registrationNumber' => $this->registrationNumber,
+            'brand' => $this->brand,
+            'model' => $this->model,
+            'type' => $this->type,
+            'createdAt' => $this->createdAt,
+            'updatedAt' => $this->updatedAt,
+        ];
     }
 }

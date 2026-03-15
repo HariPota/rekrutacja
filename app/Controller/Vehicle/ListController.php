@@ -23,24 +23,27 @@ class ListController extends BaseController
      */
     public function list(Request $request): JsonResponse
     {
-        $page = $request->query->getInt('page', 1);
-        $limit = $request->query->getInt('limit', 10);
-        $offset = ($page - 1) * $limit;
-
-        $sort = 'createdAt';
-        $sortDirection = 'desc';
-        $sortParam = $request->query->get('sort');
-
-        if ($sortParam) {
-            $parts = explode('|', $sortParam);
-            $sort = $parts[0];
-            if (isset($parts[1])) {
-                $sortDirection = in_array($parts[1], ['ascending', 'asc']) ? 'asc' : 'desc';
-            }
-        }
-
+        // Server-side pagination (optional, uncomment to enable):
+        // $page = $request->query->getInt('page', 1);
+        // $limit = $request->query->getInt('limit', 10);
+        // $offset = ($page - 1) * $limit;
+        //
+        // $sort = 'createdAt';
+        // $sortDirection = 'desc';
+        // $sortParam = $request->query->get('sort');
+        //
+        // if ($sortParam) {
+        //     $parts = explode('|', $sortParam);
+        //     $sort = $parts[0];
+        //     if (isset($parts[1])) {
+        //         $sortDirection = in_array($parts[1], ['ascending', 'asc']) ? 'asc' : 'desc';
+        //     }
+        // }
+        //
+        // $results = $this->vehiclesReader->getList($limit, $offset, $sort, $sortDirection);
+        // README Use the VDataTable component from Vuetify and do not use sorting and pagination on the backend
         try {
-            $results = $this->vehiclesReader->getList($limit, $offset, $sort, $sortDirection);
+            $results = $this->vehiclesReader->getAll();
 
             return $this->toJsonResponse($results);
         } catch (\Throwable $e) {
