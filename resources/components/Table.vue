@@ -5,8 +5,16 @@
             :loading="fetching"
             :headers="tableHeaders"
             :items="tableData"
-            :items-per-page="itemsPerPage"
+            :server-items-length="total"
+            :options.sync="internalOptions"
+            :items-per-page="currentLimit"
+            :page.sync="currentPage"
             :footer-props="{ itemsPerPageOptions: paginationPageSizes }"
+            :height="height"
+            fixed-header
+            @update:page="handlePageUpdate"
+            @update:items-per-page="handleItemsPerPageChange"
+            @update:sort-desc="handleSortChange"
         >
             <template v-slot:no-results>
                 <div class="pa-2">
@@ -31,6 +39,13 @@
 <script>
 import axios from 'axios'
 
+function buildSortString(sort) {
+    if (!sort || typeof sort !== 'object') return null
+    const { field, direction } = sort
+    if (!field) return null
+    return `${field}|${direction || 'ascending'}`
+}
+
 export default {
     name: 'Table',
     props: {
@@ -42,21 +57,21 @@ export default {
             type: String,
             default: '',
         },
-        responseKey: {
-            type: String,
-            default: 'results',
-        },
         itemsPerPage: {
             type: Number,
             default: 10,
         },
         paginationPageSizes: {
             type: Array,
-            default: () => [5, 10, 25],
+            default: () => [10, 20, 50],
         },
         hoverRows: {
             type: Boolean,
             default: true,
+        },
+        height: {
+            type: [String, Number],
+            default: '70vh',
         },
         autoRefresh: {
             type: Boolean,
@@ -73,6 +88,10 @@ export default {
             fetching: false,
             fetchError: null,
             tableData: [],
+            total: 0,
+            currentPage: 1,
+            currentLimit: this.itemsPerPage,
+            internalOptions: {},
         }
     },
     mounted() {
@@ -92,20 +111,37 @@ export default {
         async refresh() {
             await this.fetchData()
         },
-        async fetchData() {
+        async fetchData(overrideParams) {
             if (this.fetching) return
 
             this.fetching = true
             this.$emit('fetching')
 
             try {
-                let params = {}
+                let params = {
+                    page: this.currentPage,
+                    limit: this.currentLimit,
+                }
+
+                const { sortBy = [], sortDesc = [] } = this.internalOptions
+                if (sortBy.length > 0) {
+                    params.sort = buildSortString({
+                        field: sortBy[0],
+                        direction: sortDesc[0] ? 'descending' : 'ascending',
+                    })
+                }
+
                 if (this.query) {
-                    params = Object.assign({}, this.query)
+                    params = Object.assign({}, this.query, params)
+                }
+
+                if (overrideParams) {
+                    params = Object.assign({}, params, overrideParams)
                 }
 
                 const { data } = await axios.get(this.url, { params })
-                this.tableData = data[this.responseKey] || data
+                this.tableData = data.rows || []
+                this.total = data.total || 0
                 this.$emit('fetched', data)
             } catch (error) {
                 this.fetchError = 'An error occurred. Please try again.'
@@ -114,12 +150,26 @@ export default {
                 this.fetching = false
             }
         },
+        async handlePageUpdate(page) {
+            this.currentPage = page
+            await this.fetchData()
+        },
+        async handleItemsPerPageChange(limit) {
+            this.currentLimit = limit
+            this.currentPage = 1
+            await this.fetchData()
+        },
+        async handleSortChange() {
+            this.currentPage = 1
+            await this.fetchData()
+        },
     },
     watch: {
         query: {
             deep: true,
             handler() {
                 if (this.autoRefresh) {
+                    this.currentPage = 1
                     this.refresh()
                 }
             },

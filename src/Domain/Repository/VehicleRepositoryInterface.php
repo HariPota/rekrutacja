@@ -6,11 +6,35 @@ use Domain\Entity\Vehicle;
 
 interface VehicleRepositoryInterface
 {
-    public function getList();
+    /**
+     * @param int $limit
+     * @param int $offset
+     * @param string|null $sort
+     * @param string $sortDirection
+     * @return Vehicle[]
+     */
+    public function getList(int $limit = 10, int $offset = 0, ?string $sort = null, string $sortDirection = 'asc'): array;
 
-    public function getById($id);
+    /**
+     * @return int
+     */
+    public function getCount(): int;
 
-    public function deleteById($id);
+    /**
+     * @param int $id
+     * @return Vehicle|null
+     */
+    public function getById(int $id): ?Vehicle;
 
-    public function persist(Vehicle $vehicle);
+    /**
+     * @param int $id
+     * @return void
+     */
+    public function deleteById(int $id): void;
+
+    /**
+     * @param Vehicle $vehicle
+     * @return void
+     */
+    public function persist(Vehicle $vehicle): void;
 }
