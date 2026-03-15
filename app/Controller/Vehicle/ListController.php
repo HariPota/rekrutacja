@@ -11,20 +11,18 @@ use Symfony\Component\HttpFoundation\Request;
 class ListController extends BaseController
 {
     /**
-     * @param int|null $id
-     * @param Request|null $request
+     * @param Request $request
      * @return JsonResponse
      */
-    public function list(?int $id = null, ?Request $request = null): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $request = $request ?? Request::createFromGlobals();
 
         $page = $request->query->getInt('page', 1);
         $limit = $request->query->getInt('limit', 10);
         $offset = ($page - 1) * $limit;
 
-        $sort = null;
-        $sortDirection = 'asc';
+        $sort = 'createdAt';
+        $sortDirection = 'desc';
         $sortParam = $request->query->get('sort');
 
         if ($sortParam) {

@@ -1,12 +1,12 @@
 import axios from 'axios'
 
-export async function getVehiclesList() {
-    const { data } = await axios.get('/vehicles/list')
-    return data.results
+export async function createVehicle(payload) {
+    const { data } = await axios.post('/vehicles/create', payload)
+    return data
 }
 
-export async function saveVehicle(id, payload) {
-    const { data } = await axios.post(`/vehicles/save/${id}`, payload)
+export async function updateVehicle(id, payload) {
+    const { data } = await axios.post(`/vehicles/update/${id}`, payload)
     return data
 }
 

@@ -1,10 +1,11 @@
 <?php
 require_once './vendor/autoload.php';
 
+use App\Controller\Vehicle\CreateController;
 use App\Controller\Vehicle\DeleteController;
 use App\Controller\Vehicle\ListController;
 use App\Controller\Vehicle\PageController;
-use App\Controller\Vehicle\SaveController;
+use App\Controller\Vehicle\UpdateController;
 use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Routing\{
     Exception\MethodNotAllowedException,
@@ -27,9 +28,14 @@ try {
         defaults: ['controller' => ListController::class, 'method' => 'list'],
         methods: ['GET'],
     ));
-    $routes->add('save', new Route(
-        path: '/vehicles/save/{id}',
-        defaults: ['controller' => SaveController::class, 'method' => 'save'],
+    $routes->add('create', new Route(
+        path: '/vehicles/create',
+        defaults: ['controller' => CreateController::class, 'method' => 'create'],
+        methods: ['POST'],
+    ));
+    $routes->add('update', new Route(
+        path: '/vehicles/update/{id}',
+        defaults: ['controller' => UpdateController::class, 'method' => 'update'],
         requirements: ['id' => '[0-9]+'],
         methods: ['POST'],
     ));
@@ -50,10 +56,21 @@ try {
 
     $controller = new $parameters['controller'];
     $action = $parameters['method'];
-    $controller->$action(
-        $parameters['id'] ?? null,
-        $request,
-    );
+
+    $args = [];
+    $reflection = new ReflectionMethod($controller, $action);
+    foreach ($reflection->getParameters() as $param) {
+        $type = $param->getType();
+        $typeName = $type instanceof ReflectionNamedType ? $type->getName() : null;
+
+        if ($typeName === Request::class) {
+            $args[] = $request;
+        } elseif ($param->getName() === 'id' && isset($parameters['id'])) {
+            $args[] = (int) $parameters['id'];
+        }
+    }
+
+    $controller->$action(...$args);
 } catch (ResourceNotFoundException $e) {
     (new Response(content: $e->getMessage(), status: 404))->send();
 } catch (MethodNotAllowedException $e) {

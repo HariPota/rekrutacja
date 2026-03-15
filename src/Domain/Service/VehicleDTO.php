@@ -5,7 +5,7 @@ namespace Domain\Service;
 class VehicleDTO
 {
     /**
-     * @param int $id
+     * @param int|null $id
      * @param string $registrationNumber
      * @param string $brand
      * @param string $model
@@ -14,7 +14,7 @@ class VehicleDTO
      * @param int|null $updatedAt
      */
     public function __construct(
-        public readonly int $id,
+        public readonly ?int $id,
         public readonly string $registrationNumber,
         public readonly string $brand,
         public readonly string $model,

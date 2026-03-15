@@ -6,21 +6,16 @@ use App\Controller\BaseController;
 use Domain\Service\VehiclesWriter;
 use Persistence\Repository\VehicleRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 
 class DeleteController extends BaseController
 {
     /**
-     * @param int|null $id
-     * @param Request|null $request
+     * @param int $id
+     *
      * @return JsonResponse
      */
-    public function delete(?int $id = null, ?Request $request = null): JsonResponse
+    public function delete(int $id): JsonResponse
     {
-        if (!$id) {
-            return $this->toJsonResponse(['success' => false, 'message' => 'Missing vehicle ID'], 400);
-        }
-
         try {
             (new VehiclesWriter(new VehicleRepository()))->deleteById($id);
 

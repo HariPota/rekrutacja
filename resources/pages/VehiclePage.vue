@@ -56,7 +56,7 @@
 <script setup>
 import { ref, reactive, getCurrentInstance } from 'vue'
 import { format, fromUnixTime } from 'date-fns'
-import { saveVehicle, removeVehicle } from '../api/vehicles'
+import { createVehicle, updateVehicle, removeVehicle } from '../api/vehicles'
 import Table from '../components/Table.vue'
 import VehicleFormDialog from '../components/vehicles/VehicleFormDialog.vue'
 
@@ -111,9 +111,12 @@ async function handleDeleteClick(item) {
 }
 
 async function handleFormSubmit(form) {
-    const id = formDialog.vehicle ? formDialog.vehicle.id : 0
     try {
-        await saveVehicle(id, form)
+        if (formDialog.vehicle) {
+            await updateVehicle(formDialog.vehicle.id, form)
+        } else {
+            await createVehicle(form)
+        }
         formDialog.visible = false
         refreshDatagrid()
     } catch (error) {

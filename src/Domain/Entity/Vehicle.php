@@ -2,10 +2,53 @@
 
 namespace Domain\Entity;
 
+use JMS\Serializer\Annotation as Serializer;
+
 class Vehicle
 {
     /**
-     * @param int $id
+     * @Serializer\Type("int")
+     * @Serializer\SerializedName("id")
+     */
+    private ?int $id = null;
+
+    /**
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("registration_number")
+     */
+    private string $registrationNumber;
+
+    /**
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("brand")
+     */
+    private string $brand;
+
+    /**
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("model")
+     */
+    private string $model;
+
+    /**
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("type")
+     */
+    private string $type;
+
+    /**
+     * @Serializer\Type("int")
+     * @Serializer\SerializedName("created_at")
+     */
+    private ?int $createdAt;
+
+    /**
+     * @Serializer\Type("int")
+     * @Serializer\SerializedName("updated_at")
+     */
+    private ?int $updatedAt;
+
+    /**
      * @param string $registrationNumber
      * @param string $brand
      * @param string $model
@@ -14,20 +57,25 @@ class Vehicle
      * @param int|null $updatedAt
      */
     public function __construct(
-        private readonly int $id = 0,
-        private readonly string $registrationNumber = '',
-        private readonly string $brand = '',
-        private readonly string $model = '',
-        private readonly string $type = '',
-        private readonly ?int $createdAt = null,
-        private readonly ?int $updatedAt = null,
+        string $registrationNumber,
+        string $brand,
+        string $model,
+        string $type,
+        ?int $createdAt = null,
+        ?int $updatedAt = null,
     ) {
+        $this->registrationNumber = $registrationNumber;
+        $this->brand = $brand;
+        $this->model = $model;
+        $this->type = $type;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -78,5 +126,27 @@ class Vehicle
     public function getUpdatedAt(): ?int
     {
         return $this->updatedAt;
+    }
+
+    /**
+     * @param string $registrationNumber
+     * @param string $brand
+     * @param string $model
+     * @param string $type
+     * @param int|null $updatedAt
+     * @return void
+     */
+    public function update(
+        string $registrationNumber,
+        string $brand,
+        string $model,
+        string $type,
+        ?int $updatedAt = null,
+    ): void {
+        $this->registrationNumber = $registrationNumber;
+        $this->brand = $brand;
+        $this->model = $model;
+        $this->type = $type;
+        $this->updatedAt = $updatedAt;
     }
 }
